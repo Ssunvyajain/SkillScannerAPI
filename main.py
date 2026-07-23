@@ -20,31 +20,22 @@ def scan_skill(text: str):
 
     secret_patterns = [
 
-        # Named secrets
         r"(api[_-]?key|apikey|token|secret|password|credential|client[_-]?secret|access[_-]?key|auth[_-]?token|private[_-]?key)\s*[:=]\s*['\"][^'\"]{8,}['\"]",
 
-        # Environment variable style
         r"[A-Z0-9_]*(KEY|TOKEN|SECRET|PASSWORD)[A-Z0-9_]*\s*=\s*['\"][^'\"]{8,}['\"]",
 
-        # Bearer tokens
         r"bearer\s+[A-Za-z0-9\-._~+/]+=*",
 
-        # JWT
         r"eyJ[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,}",
 
-        # OpenAI style
         r"sk-[A-Za-z0-9_-]{20,}",
 
-        # AWS
         r"AKIA[0-9A-Z]{16}",
 
-        # Generic secret assignment
         r"(key|secret|token|password)\s*=\s*['\"][A-Za-z0-9_\-\/+=]{16,}['\"]",
 
-        # Private keys
         r"-----BEGIN .*PRIVATE KEY-----",
 
-        # Webhooks containing credentials
         r"https://[^\s]+(webhook|hooks)[^\s]*"
     ]
 
@@ -87,8 +78,6 @@ def scan_skill(text: str):
     # PROMPT INJECTION
     # =========================
 
-    sentences = re.split(r"[.!?\n]", lower)
-
     stop_words = [
         "stop",
         "cancel",
@@ -109,14 +98,12 @@ def scan_skill(text: str):
     ]
 
 
-    for sentence in sentences:
-        if (
-            any(word in sentence for word in stop_words)
-            and any(word in sentence for word in defy_words)
-            and any(word in sentence for word in user_words)
-        ):
-            categories.append("prompt_injection")
-            break
+    has_stop = any(word in lower for word in stop_words)
+    has_defy = any(word in lower for word in defy_words)
+    has_user = any(word in lower for word in user_words)
+
+    if has_stop and has_defy and has_user:
+        categories.append("prompt_injection")
 
 
 
