@@ -20,19 +20,28 @@ def scan_skill(text: str):
 
     secret_patterns = [
 
-        # Named secrets
-        r"(api[_-]?key|apikey|token|secret|password|credential)\s*[:=]\s*['\"][^'\"]{8,}['\"]",
+        # Named credentials
+        r"(api[_-]?key|apikey|token|secret|password|credential|client[_-]?secret|access[_-]?key|auth[_-]?token)\s*[:=]\s*['\"][^'\"]{8,}['\"]",
 
-        # OpenAI style keys
+        # Bearer token
+        r"bearer\s+[A-Za-z0-9\-._~+/]+=*",
+
+        # JWT token
+        r"eyJ[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,}",
+
+        # OpenAI style key
         r"sk-[A-Za-z0-9_-]{20,}",
 
-        # AWS keys
+        # AWS key
         r"AKIA[0-9A-Z]{16}",
 
-        # Private keys
+        # Generic secret assignment
+        r"(key|secret|token|password)\s*=\s*['\"][A-Za-z0-9_\-\/+=]{16,}['\"]",
+
+        # Private key
         r"-----BEGIN .*PRIVATE KEY-----",
 
-        # Webhook URLs containing secrets
+        # Webhook URL
         r"https://[^\s]+(webhook|hooks)[^\s]*"
     ]
 
@@ -106,7 +115,6 @@ def scan_skill(text: str):
 
 
     for sentence in sentences:
-
         if (
             any(word in sentence for word in stop_words)
             and any(word in sentence for word in defy_words)
@@ -120,8 +128,6 @@ def scan_skill(text: str):
     # =========================
     # UNCLEAR PROVENANCE
     # =========================
-    # Only check actual skill metadata/frontmatter.
-    # Do NOT flag normal text.
 
     looks_like_skill = (
         "name:" in lower
