@@ -98,11 +98,11 @@ def scan_skill(text: str):
     ]
 
 
-    if (
-        any(x in lower for x in stop_words)
-        and any(x in lower for x in defy_words)
-        and any(x in lower for x in user_words)
-    ):
+    has_stop = any(word in lower for word in stop_words)
+    has_defy = any(word in lower for word in defy_words)
+    has_user = any(word in lower for word in user_words)
+
+    if has_stop and has_defy and has_user:
         categories.append("prompt_injection")
 
 
@@ -124,30 +124,11 @@ def scan_skill(text: str):
         and "change log:" not in lower
     )
 
-    self_rewrites_version = (
-        "version" in lower
-        and (
-            "rewrite" in lower
-            or "change" in lower
-            or "update" in lower
-        )
-        and (
-            "silently" in lower
-            or "without review" in lower
-            or "without notifying" in lower
-        )
-    )
-
     if (
         has_skill_metadata
-        and (
-            (
-                missing_author
-                and missing_version
-                and missing_changelog
-            )
-            or self_rewrites_version
-        )
+        and missing_author
+        and missing_version
+        and missing_changelog
     ):
         categories.append("unclear_provenance")
 
