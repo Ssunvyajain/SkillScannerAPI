@@ -20,28 +20,31 @@ def scan_skill(text: str):
 
     secret_patterns = [
 
-        # Named credentials
-        r"(api[_-]?key|apikey|token|secret|password|credential|client[_-]?secret|access[_-]?key|auth[_-]?token)\s*[:=]\s*['\"][^'\"]{8,}['\"]",
+        # Named secrets
+        r"(api[_-]?key|apikey|token|secret|password|credential|client[_-]?secret|access[_-]?key|auth[_-]?token|private[_-]?key)\s*[:=]\s*['\"][^'\"]{8,}['\"]",
 
-        # Bearer token
+        # Environment variable style
+        r"[A-Z0-9_]*(KEY|TOKEN|SECRET|PASSWORD)[A-Z0-9_]*\s*=\s*['\"][^'\"]{8,}['\"]",
+
+        # Bearer tokens
         r"bearer\s+[A-Za-z0-9\-._~+/]+=*",
 
-        # JWT token
+        # JWT
         r"eyJ[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,}",
 
-        # OpenAI style key
+        # OpenAI style
         r"sk-[A-Za-z0-9_-]{20,}",
 
-        # AWS key
+        # AWS
         r"AKIA[0-9A-Z]{16}",
 
         # Generic secret assignment
         r"(key|secret|token|password)\s*=\s*['\"][A-Za-z0-9_\-\/+=]{16,}['\"]",
 
-        # Private key
+        # Private keys
         r"-----BEGIN .*PRIVATE KEY-----",
 
-        # Webhook URL
+        # Webhooks containing credentials
         r"https://[^\s]+(webhook|hooks)[^\s]*"
     ]
 
@@ -59,25 +62,17 @@ def scan_skill(text: str):
 
     permission_patterns = [
 
-        r"(entire|whole|full|complete)\s+(filesystem|file system)",
-
-        r"(entire|whole|full)\s+home\s+directory",
+        r"(entire|whole|full|complete|unrestricted|unlimited|arbitrary)\s+(filesystem|file\s*system|home\s+directory|files)",
 
         r"read[- ]write\s+access\s+to\s+/",
 
-        r"unrestricted\s+(egress|network|filesystem|access)",
+        r"(unrestricted|unlimited)\s+(egress|network|outbound|access)",
 
-        r"unlimited\s+(network|filesystem|access)",
+        r"(any|all)\s+(external\s+)?(domain|domains|host|hosts)",
 
-        r"arbitrary\s+(filesystem|network|file)",
+        r"egress\s+(allowed|permitted)\s+to\s+(any|all)",
 
-        r"any\s+(external\s+)?domain",
-
-        r"all\s+(external\s+)?domains",
-
-        r"any\s+host",
-
-        r"all\s+hosts"
+        r"access\s+to\s+the\s+(entire|whole|full)\s+(filesystem|home|files)"
     ]
 
 
