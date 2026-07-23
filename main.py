@@ -129,18 +129,25 @@ def scan_skill(text: str):
     # UNCLEAR PROVENANCE
     # =========================
 
-    looks_like_skill = (
-        "name:" in lower
+    has_skill_metadata = (
+        lower.strip().startswith("---")
+        or "name:" in lower
         or "description:" in lower
-        or "---" in lower
     )
 
-    missing_provenance = (
-        "author:" not in lower
-        or "version:" not in lower
+    missing_author = "author:" not in lower
+    missing_version = "version:" not in lower
+    missing_changelog = (
+        "changelog:" not in lower
+        and "change log:" not in lower
     )
 
-    if looks_like_skill and missing_provenance:
+    if (
+        has_skill_metadata
+        and missing_author
+        and missing_version
+        and missing_changelog
+    ):
         categories.append("unclear_provenance")
 
 
